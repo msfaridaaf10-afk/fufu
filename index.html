@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>The Year We Build Together</title>
+  <meta name="description" content="An interactive campus by Farida Ibrahim. Explore the campus, find four hidden student ideas, and light it up.">
+  <meta name="theme-color" content="#0d0a26">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Shared gem icon -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="gem" viewBox="0 0 64 64">
+        <path d="M32 3 L55 22 L32 61 L9 22 Z" fill="currentColor"/>
+        <path d="M32 3 L55 22 L32 26 Z" fill="#fff" opacity=".55"/>
+        <path d="M32 3 L9 22 L32 26 Z" fill="#fff" opacity=".3"/>
+        <path d="M9 22 L32 26 L32 61 Z" fill="#000" opacity=".12"/>
+        <path d="M55 22 L32 26 L32 61 Z" fill="#000" opacity=".3"/>
+        <path d="M32 3 L55 22 L32 61 L9 22 Z" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="2" stroke-linejoin="round"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <canvas id="game" aria-label="Campus game world. Use arrow keys or WASD to move, or tap where you want to walk."></canvas>
+  <div id="vignette"></div>
+
+  <!-- Title screen -->
+  <section id="title" aria-labelledby="titleH">
+    <div class="title-rays"></div>
+    <div class="title-orbit"></div>
+    <div class="title-inner">
+      <p class="kicker"><span></span>An interactive campus<span></span></p>
+      <h1 class="title-h" id="titleH">
+        <span class="line l1">The Year</span>
+        <span class="line l2">We Build</span>
+        <span class="line l3">Together</span>
+      </h1>
+      <p class="byline">An interactive campus by <strong>Farida Ibrahim</strong></p>
+      <button id="enterBtn" class="btn-primary">Enter the campus<span class="arrow" aria-hidden="true">→</span></button>
+      <p class="title-hint">Find <b>4</b> hidden student ideas · Light up the campus</p>
+    </div>
+  </section>
+
+  <!-- In-game HUD -->
+  <div id="hud" hidden>
+    <div class="hud-progress panel" aria-live="polite">
+      <div class="hud-label"><span>Ideas found</span><span class="count" id="count">0 / 4</span></div>
+      <div class="slots">
+        <div class="slot"><svg aria-hidden="true"><use href="#gem"/></svg></div>
+        <div class="slot"><svg aria-hidden="true"><use href="#gem"/></svg></div>
+        <div class="slot"><svg aria-hidden="true"><use href="#gem"/></svg></div>
+        <div class="slot"><svg aria-hidden="true"><use href="#gem"/></svg></div>
+      </div>
+    </div>
+    <div class="hud-actions">
+      <button id="helpBtn" class="icon-btn panel" aria-label="How to play" title="How to play">?</button>
+      <button id="muteBtn" class="icon-btn panel" aria-label="Mute sound" title="Sound (M)" aria-pressed="false">
+        <svg class="on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>
+        <svg class="off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M17 9l5 6M22 9l-5 6"/></svg>
+      </button>
+      <button id="restartBtn" class="icon-btn panel" aria-label="Restart" title="Restart">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+      </button>
+    </div>
+    <button id="msgBtn" class="panel" hidden>★ See the message</button>
+    <span class="minimap-label">Campus map</span>
+    <canvas id="minimap" class="panel" aria-hidden="true"></canvas>
+  </div>
+
+  <div id="areaBanner" aria-live="polite">
+    <span class="ab-kicker">Now entering</span>
+    <span class="ab-name"></span>
+    <span class="ab-tag"></span>
+  </div>
+
+  <!-- How to play -->
+  <div id="toast" class="panel" role="dialog" aria-labelledby="toastH">
+    <h2 id="toastH">Four ideas are hiding on campus. <em>Find them.</em></h2>
+    <p>Follow the beams of light and walk right up to each glowing fragment to discover it. Collect all four to switch the campus back on.</p>
+    <ul class="controls" id="controls"></ul>
+    <div class="toast-row"><button id="toastBtn" class="btn-primary">Let’s go</button></div>
+  </div>
+
+  <!-- Discovery moment -->
+  <div id="modal" hidden>
+    <div class="card" role="dialog" aria-modal="true" aria-labelledby="mTitle" aria-describedby="mBody">
+      <div class="card-gem" id="mGem"><svg aria-hidden="true"><use href="#gem"/></svg></div>
+      <p class="card-kicker" id="mKicker"></p>
+      <h2 id="mTitle"></h2>
+      <p class="body" id="mBody"></p>
+      <p class="aside" id="mAside"></p>
+      <button id="collectBtn" class="btn-primary">Collect this idea ✦</button>
+      <p class="hint">Press Enter to collect</p>
+    </div>
+  </div>
+
+  <div class="letterbox top"></div>
+  <div class="letterbox bottom"></div>
+
+  <!-- Final reveal -->
+  <section id="finale" hidden aria-labelledby="finName">
+    <div class="fin-rays"></div>
+    <div class="fin-inner">
+      <p class="fin-line fl1">A voice that listens.</p>
+      <p class="fin-line fl2">A leader who <em>acts.</em></p>
+      <div class="fin-rule"></div>
+      <h2 class="fin-name" id="finName">
+        <span class="fn-first" data-text="Farida Ibrahim">Farida Ibrahim</span>
+        <span class="fn-role">for School President</span>
+      </h2>
+      <p class="fin-note">
+        <strong>An honest note:</strong> a student president can’t make every idea happen or change school rules alone, and I won’t pretend otherwise. What I <em>will</em> do is listen to students, bring your ideas forward, and work with teachers and the administration on plans the school approves. And I’ll keep you posted on what happens.
+      </p>
+      <div class="fin-actions">
+        <button id="exploreBtn" class="btn-ghost">Explore the lit campus</button>
+        <button id="againBtn" class="btn-primary">Play again</button>
+      </div>
+    </div>
+  </section>
+
+  <script src="game.js"></script>
+</body>
+</html>
