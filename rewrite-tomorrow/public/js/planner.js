@@ -120,6 +120,7 @@ export function renderPlanner(el) {
       toast(`Deleted “${cm.title}”.`, { action: { label: 'Undo', fn: undo } });
     }));
     $$('[data-session]', el).forEach((b) => b.addEventListener('click', () => sessionDialog(b.dataset.session)));
+    if (ui.view === 'week') enableDrag(plan, sched, c);
     $$('[data-fix]', el).forEach((b) => b.addEventListener('click', () => fixDialog(b.dataset.fix, b.dataset.task)));
     $$('[data-open-setup]', el).forEach((b) => b.addEventListener('click', () => { const d = $('#setup', el); d.open = true; d.scrollIntoView({ block: 'start', behavior: reducedMotion() ? 'auto' : 'smooth' }); $('input, select', d).focus(); }));
     $('#export', el).addEventListener('click', () => exportICS(sched, c, $('#exp-wind', el).checked));
@@ -267,16 +268,25 @@ export function renderPlanner(el) {
 
   function commitmentDialog(cm) {
     const v0 = cm || { title: '', days: [], start: '16:00', end: '17:00' };
+    const oneOff = !!(cm && cm.date);
+    const today = clock().startDate;
     openDialog({
       title: cm ? 'Edit commitment' : 'Add a fixed commitment',
       build(b, close) {
         b.innerHTML = `
         <form class="stack" novalidate>
           <label class="field"><span class="field-label">What is it?</span><input name="title" maxlength="60" value="${esc(v0.title)}" placeholder="e.g. Football, work shift, family dinner"><span class="field-error" id="cf-t" data-error-for="title" hidden></span></label>
-          <fieldset class="field-group"><legend>Which days?</legend>
-            <div class="day-picks">${WEEKDAYS.map(([d, n]) => `<label class="day-pick"><input type="checkbox" name="day" value="${d}" ${v0.days.includes(d) ? 'checked' : ''}><span>${n}</span></label>`).join('')}</div>
+          <fieldset class="field-group"><legend>How often?</legend>
+            <div class="choices">
+              <label class="choice"><input type="radio" name="kind" value="weekly" ${oneOff ? '' : 'checked'}><span>Every week</span></label>
+              <label class="choice"><input type="radio" name="kind" value="once" ${oneOff ? 'checked' : ''}><span>Just once</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="field-group" data-when="weekly" ${oneOff ? 'hidden' : ''}><legend>Which days?</legend>
+            <div class="day-picks">${WEEKDAYS.map(([d, n]) => `<label class="day-pick"><input type="checkbox" name="day" value="${d}" ${(v0.days || []).includes(d) ? 'checked' : ''}><span>${n}</span></label>`).join('')}</div>
             <span class="field-error" id="cf-d" data-error-for="day" hidden></span>
           </fieldset>
+          <label class="field" data-when="once" ${oneOff ? '' : 'hidden'}><span class="field-label">Date</span><input name="date" type="date" value="${esc(v0.date || today)}"><span class="field-error" id="cf-date" data-error-for="date" hidden></span></label>
           <div class="row-fields">
             <label class="field"><span class="field-label">Starts</span><input name="start" type="time" value="${esc(v0.start)}"></label>
             <label class="field"><span class="field-label">Ends</span><input name="end" type="time" value="${esc(v0.end)}"><span class="hint">An end time earlier than the start means it finishes after midnight.</span></label>
@@ -286,20 +296,123 @@ export function renderPlanner(el) {
         </form>`;
         const f = $('form', b);
         $('[data-cancel]', b).addEventListener('click', () => close());
+        const kind = () => f.querySelector('[name="kind"]:checked').value;
+        f.addEventListener('change', (e) => {
+          if (e.target.name !== 'kind') return;
+          $$('[data-when]', f).forEach((x) => { x.hidden = x.dataset.when !== kind(); });
+        });
         f.addEventListener('submit', (e) => {
           e.preventDefault();
-          const v = { title: f.elements.title.value.trim(), days: $$('[name="day"]:checked', f).map((i) => Number(i.value)), start: f.elements.start.value, end: f.elements.end.value };
+          const once = kind() === 'once';
+          const v = { title: f.elements.title.value.trim(), days: once ? [] : $$('[name="day"]:checked', f).map((i) => Number(i.value)), date: once ? f.elements.date.value : null, start: f.elements.start.value, end: f.elements.end.value };
+          if (!once) delete v.date;
           const errs = validateCommitment(v);
+          if (!once) v.date = undefined;
           fieldError(f, 'title', (errs.find((x) => x.field === 'title') || {}).msg);
+          fieldError(f, 'date', (errs.find((x) => x.field === 'date') || {}).msg);
           fieldError(f, 'day', (errs.find((x) => x.field === 'days') || {}).msg);
           fieldError(f, 'start', (errs.find((x) => x.field === 'time') || {}).msg);
           if (errs.length) return;
-          if (cm) updatePlan((p) => { Object.assign(p.commitments.find((x) => x.id === cm.id), v); }, `Edit “${v.title}”`);
+          if (cm) updatePlan((p) => { const x = p.commitments.find((y) => y.id === cm.id); Object.assign(x, v); if (!once) delete x.date; }, `Edit “${v.title}”`);
           else updatePlan((p) => { p.commitments.push({ id: makeId('c'), ...v }); }, `Add “${v.title}”`);
           toast(cm ? `Saved “${v.title}”.` : `Added “${v.title}”.`, { action: { label: 'Undo', fn: undo } });
           close(true);
         });
       },
+    });
+  }
+
+  function moveSession(task, st, to, before) {
+    const c = clock();
+    const len = st.end - st.start;
+    updatePlan((p) => {
+      const x = p.tasks.find((y) => y.id === task.id);
+      x.pins = (x.pins || []).filter((pin) => pin.start !== st.start);
+      x.pins.push({ start: to, minutes: len });
+    }, `Move “${task.title}”`, { move: { taskId: task.id, from: st.start, fromEnd: st.end, to, at: Date.now() } });
+    const after = schedule();
+    const others = diffSchedules(before, after).filter((d) => d.taskId !== task.id);
+    toast(`Moved “${task.title}” from ${label(c.startDate, st.start)} to ${label(c.startDate, to)}.${others.length ? ` ${others.length} other session${others.length > 1 ? 's' : ''} shifted to make room.` : ''}`, { action: { label: 'Undo', fn: undo } });
+  }
+
+  // Optional mouse/pen dragging in the week view. Every move is also possible from
+  // the session dialog (click or Enter), which is the accessible route.
+  function enableDrag(plan, sched, c) {
+    const cols = $$('.day-col', el);
+    if (!cols.length) return;
+    const px = HOUR_PX / 60;
+    const SL = 5;
+    let drag = null;
+    let suppressClick = false;
+
+    // Free slots as if this session (and its trailing break) were not there.
+    const maskWithout = (st) => {
+      const mask = Uint8Array.from(sched.freeMask);
+      const brk = Math.round((plan.settings.breakLen || 0) / SL);
+      for (let i = st.start / SL; i < st.end / SL + brk && i < mask.length; i++) {
+        if (i < st.end / SL || mask[i] === 2) mask[i] = sched.availableMask[i] === 1 ? 1 : mask[i];
+      }
+      return mask;
+    };
+    const canPlace = (st, mask, start) => {
+      const task = plan.tasks.find((t) => t.id === st.taskId);
+      const due = absMinute(c.startDate, task.dueDate, task.dueTime);
+      const len = st.end - st.start;
+      if (start < sched.nowMin || start + len > Math.min(due, sched.days * DAY)) return false;
+      for (let i = start / SL; i < (start + len) / SL; i++) if (mask[i] !== 1) return false;
+      return true;
+    };
+    const clearPreview = () => { const pv = $('.drop-preview', el); if (pv) pv.parentElement.removeChild(pv); };
+
+    $$('.blk-study', el).forEach((blk) => {
+      blk.addEventListener('pointerdown', (e) => {
+        if (e.button !== 0 || e.pointerType === 'touch') return; // touch keeps normal scrolling; tap opens the dialog
+        const st = sched.study.find((b) => b.id === blk.dataset.session);
+        drag = { blk, st, mask: maskWithout(st), x: e.clientX, y: e.clientY, grab: e.clientY - blk.getBoundingClientRect().top, moved: false, target: null };
+        blk.setPointerCapture(e.pointerId);
+      });
+      blk.addEventListener('pointermove', (e) => {
+        if (!drag || drag.blk !== blk) return;
+        if (!drag.moved && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 6) return;
+        drag.moved = true;
+        blk.classList.add('is-dragging');
+        blk.style.transform = `translate(${e.clientX - drag.x}px, ${e.clientY - drag.y}px)`;
+        const col = cols.find((cc) => { const r = cc.getBoundingClientRect(); return e.clientX >= r.left && e.clientX <= r.right; });
+        if (!col) { clearPreview(); drag.target = null; return; }
+        const day = cols.indexOf(col);
+        const r = col.getBoundingClientRect();
+        const len = drag.st.end - drag.st.start;
+        let min = Math.round(((e.clientY - drag.grab - r.top) / px) / SL) * SL;
+        min = Math.max(0, Math.min(DAY - len, min));
+        const start = day * DAY + min;
+        const ok = canPlace(drag.st, drag.mask, start);
+        let pv = $('.drop-preview', el);
+        if (!pv) { pv = document.createElement('div'); pv.className = 'drop-preview'; pv.setAttribute('aria-hidden', 'true'); }
+        if (pv.parentElement !== col) col.append(pv);
+        pv.style.top = `${min * px}px`;
+        pv.style.height = `${len * px - 2}px`;
+        pv.classList.toggle('is-bad', !ok);
+        pv.textContent = ok ? `${fmtTime(start)}–${fmtTime(start + len)}` : 'Not free';
+        drag.target = ok ? start : null;
+      });
+      const end = () => {
+        if (!drag || drag.blk !== blk) return;
+        const d = drag;
+        drag = null;
+        blk.classList.remove('is-dragging');
+        blk.style.transform = '';
+        clearPreview();
+        if (!d.moved) return;
+        suppressClick = true;
+        setTimeout(() => { suppressClick = false; }, 0);
+        if (d.target == null) { toast('That time isn’t free — sleep, wind-down and commitments stay protected.'); return; }
+        if (d.target === d.st.start) return;
+        const task = getPlan().tasks.find((t) => t.id === d.st.taskId);
+        moveSession(task, d.st, d.target, sched);
+      };
+      blk.addEventListener('pointerup', end);
+      blk.addEventListener('pointercancel', end);
+      blk.addEventListener('click', (e) => { if (suppressClick) { e.stopImmediatePropagation(); e.preventDefault(); } }, true);
     });
   }
 
@@ -347,16 +460,7 @@ export function renderPlanner(el) {
           e.preventDefault();
           const pick = f.querySelector('[name="slot"]:checked');
           if (!pick) { const er = $('#mv-err', b); er.textContent = 'Choose a new time first.'; er.hidden = false; return; }
-          const to = Number(pick.value);
-          const before = sched;
-          updatePlan((p) => {
-            const x = p.tasks.find((y) => y.id === task.id);
-            x.pins = (x.pins || []).filter((pin) => pin.start !== st.start);
-            x.pins.push({ start: to, minutes: len });
-          }, `Move “${task.title}”`, { move: { taskId: task.id, from: st.start, fromEnd: st.end, to, at: Date.now() } });
-          const after = schedule();
-          const others = diffSchedules(before, after).filter((d) => d.taskId !== task.id);
-          toast(`Moved “${task.title}” from ${label(c.startDate, st.start)} to ${label(c.startDate, to)}.${others.length ? ` ${others.length} other session${others.length > 1 ? 's' : ''} shifted to make room.` : ''}`, { action: { label: 'Undo', fn: undo } });
+          moveSession(task, st, Number(pick.value), sched);
           close(true);
         });
         const unpin = $('[data-unpin]', b);
@@ -637,10 +741,11 @@ function commitmentsHTML(plan, sched) {
   const rows = plan.commitments.map((cm) => {
     const conflicts = sched.conflicts.filter((x) => x.a.commitmentId === cm.id || x.b.commitmentId === cm.id);
     const overnight = toMin(cm.end) <= toMin(cm.start);
+    const when = cm.date ? `${dateLabel(cm.date, 0, { weekday: 'short', day: 'numeric', month: 'short' })} only` : dayStr(cm.days);
     const kinds = [...new Set(conflicts.map((x) => (x.kind === 'overlap' ? `overlaps ${x.a.commitmentId === cm.id ? x.b.title : x.a.title}` : x.kind === 'sleep' ? 'overlaps protected sleep' : 'overlaps wind-down')))];
     return `<li class="task-row">
       <div class="task-main"><p class="task-title">${esc(cm.title)}</p>
-      <p class="task-meta">${esc(dayStr(cm.days))} · ${esc(cm.start)}–${esc(cm.end)}${overnight ? ' (ends after midnight)' : ''}</p>
+      <p class="task-meta">${esc(when)} · ${esc(cm.start)}–${esc(cm.end)}${overnight ? ' (ends after midnight)' : ''}</p>
       ${kinds.length ? `<p class="task-attn"><span aria-hidden="true">◐</span> ${esc(kinds.join('; '))}</p>` : ''}</div>
       <div class="task-actions"><button class="btn btn-quiet btn-small" type="button" data-edit-com="${cm.id}" aria-label="Edit ${esc(cm.title)}">Edit</button>
       <button class="btn btn-quiet btn-small" type="button" data-del-com="${cm.id}" aria-label="Delete ${esc(cm.title)}">Delete</button></div></li>`;
@@ -648,7 +753,7 @@ function commitmentsHTML(plan, sched) {
   return `<ul class="task-list" role="list">
     ${school.enabled ? `<li class="task-row is-fixed"><div class="task-main"><p class="task-title">School</p><p class="task-meta">${esc(dayStr(school.days))} · ${esc(school.start)}–${esc(school.end)} · travel ${school.travelBefore} + ${school.travelAfter} min</p></div><div class="task-actions"><button class="btn btn-quiet btn-small" type="button" data-open-setup>Edit</button></div></li>` : ''}
     ${rows.join('')}
-  </ul>${!plan.commitments.length ? '<p class="empty">Add clubs, jobs, caring for family, travel or anything that happens at a set time.</p>' : ''}`;
+  </ul>${!plan.commitments.length ? '<p class="empty">Add clubs, jobs, caring for family, appointments, or anything else that happens at a set time — weekly or just once.</p>' : ''}`;
 }
 
 function legendHTML() {
@@ -707,7 +812,7 @@ function weekHTML(sched, c) {
   const heads = Array.from({ length: days }, (_, d) => `<div class="day-head ${d === 0 ? 'is-today' : ''}"><span>${esc(dateLabel(c.startDate, d, { weekday: 'short' }))}</span> <span class="day-num">${esc(dateLabel(c.startDate, d, { day: 'numeric' }))}</span></div>`).join('');
   return `
   <div class="week" aria-describedby="week-help">
-    <p id="week-help" class="hint">Select a study session to move it, edit it or mark it done. Prefer a list? Use the Agenda view.</p>
+    <p id="week-help" class="hint">Select a study session to move it, edit it or mark it done — or drag it with a mouse to an open time. Prefer a list? Use the Agenda view.</p>
     <div class="week-heads"><div class="hour-gutter"></div>${heads}</div>
     <div class="week-scroll" tabindex="0" aria-label="Weekly calendar, scrollable">
       <div class="week-grid" style="height:${24 * HOUR_PX}px"><div class="hour-gutter">${hours}</div>${cols.join('')}</div>

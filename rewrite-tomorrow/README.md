@@ -41,7 +41,7 @@ npm start &                      # then, with Playwright available:
 node test/e2e.mjs http://localhost:8080/
 ```
 
-`test/e2e.mjs` runs 55 browser checks. They cover:
+`test/e2e.mjs` runs 64 browser checks. They cover:
 
 - an overloaded evening
 - a deadline before the next free slot
@@ -55,6 +55,9 @@ node test/e2e.mjs http://localhost:8080/
 - deleting all data
 - private writing never being stored
 - sensitive disclosures showing support
+- mouse dragging onto open time and onto protected sleep
+- one-off commitments
+- night mode showing fewer elements
 - reduced motion
 - phone layout and touch-target size
 - keyboard navigation
@@ -67,12 +70,13 @@ node test/e2e.mjs http://localhost:8080/
 | What's keeping me up? | `js/checkin.js` | Multi-select, at most two follow-ups, editable suggestions routed by reason |
 | Untangle | `js/untangle.js`, `server.js` | AI or guided reflection, privacy notice first, summary, task only with permission, “I'm done for tonight” |
 | Put it down for tonight | `js/putdown.js` | Three optional prompts on a paper card; drag **or** buttons; never saved |
-| Planner | `js/planner.js`, `js/scheduler.js` | Sleep and commitments reserved first; sessions, breaks, daily cap, buffers; conflicts; unscheduled work with 4 options; move/undo; week + agenda; `.ics` export |
+| Planner | `js/planner.js`, `js/scheduler.js` | Sleep and commitments (weekly or one-off) reserved first; sessions, breaks, daily cap, buffers; conflicts; unscheduled work with 4 options; move by dialog or mouse drag, with undo; week + agenda; `.ics` export |
 | Rewrite this evening | `js/rewrite.js`, `proposeRewrite()` | “My current plan” vs “A possible rewrite”, built from the real scheduler; explains every move; approve or keep; Undo |
 | Close the day | `js/close.js` | Decided / can wait / “You can stop here”; comfortable breathing (no holds); grounding; printable card |
 | Morning check-in | `js/morning.js` | Four skippable questions; descriptive observations only after 5 entries |
 | Evidence Room | `js/evidence.js` | Five case files: research finding, what it means, *our design choice*, source |
 | Settings and privacy | `js/app.js`, `js/store.js` | Light/dark/system, 3 palettes, texture, motion, opt-in saving, delete everything |
+| Night mode | `css/app.css`, `js/app.js` | Dark surfaces, fewer elements on the home page (with “Show everything”), no lifting or tilting cards |
 
 ### Scheduling rules (`public/js/scheduler.js`)
 
@@ -123,6 +127,6 @@ We evaluate usability and acceptability, not outcomes:
 ## Limitations
 
 - Without a server, for example opened as a file or on static hosting, the site needs any static server that serves `public/`. AI reflection then stays off and guided reflection is used.
-- The plan covers the next 7 days from today. Commitments repeat weekly. There is no one-off event type.
-- Moving sessions works through an accessible dialog. The calendar itself has no drag-and-drop. Only the “Put it down” card can be dragged, and it also has buttons.
+- The plan covers the next 7 days from today.
+- Dragging calendar sessions works with a mouse or pen. On touch screens a tap opens the move dialog, so the page still scrolls normally.
 - Crisis detection uses keyword matching and can miss things. The support page is always one click away in the footer.

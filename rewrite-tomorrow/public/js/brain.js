@@ -116,7 +116,7 @@ export function brainSVG() {
     </g>
     <g class="svg-tag" data-tag="work" transform="rotate(3 470 64)">
       <rect x="384" y="50" width="146" height="26" fill="var(--paper-cream)" filter="url(#paper-shadow)"/>
-      <text x="392" y="68" class="svg-label">B · WORK WON'T FIT</text>
+      <text x="392" y="68" class="svg-label">B · WON'T FIT</text>
     </g>
     <g class="svg-tag" data-tag="rest" transform="rotate(-2 120 404)">
       <rect x="40" y="392" width="150" height="26" fill="var(--paper-cream)" filter="url(#paper-shadow)"/>

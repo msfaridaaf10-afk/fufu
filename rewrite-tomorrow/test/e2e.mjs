@@ -263,6 +263,64 @@ const shot = async (page, name) => { if (SHOTS) await page.screenshot({ path: `$
   await ctx.close();
 }
 
+// 10. Mouse drag on the calendar, one-off commitments, night mode
+{
+  const { ctx, page } = await newPage();
+  await page.goto(BASE);
+  await page.getByRole('button', { name: 'Explore a sample day' }).click();
+  await page.evaluate(() => { location.hash = '#/plan'; });
+  await page.waitForSelector('.week-scroll');
+  const blk = page.locator('.blk-study').filter({ hasText: 'History' }).first();
+  await blk.scrollIntoViewIfNeeded();
+  const box = await blk.boundingBox();
+  // Drag into Friday's evening column area (one column right, same time) — then into sleep (should be refused)
+  const cols = page.locator('.day-col');
+  const fri = await cols.nth(4).boundingBox();
+  await page.mouse.move(box.x + box.width / 2, box.y + 5);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2, box.y + 5 + 2 * 44, { steps: 8 }); // two hours later, same day
+  const previewOk = await page.locator('.drop-preview').count() === 1;
+  await page.mouse.up();
+  check('Dragging shows a drop preview', previewOk);
+  const moved = await page.locator('#toast').getByText(/Moved “History reading” from Thu 15:15 to Thu 17:15/).isVisible().catch(() => false);
+  check('Dragging a session to an open time moves it, with old and new times', moved);
+  const grid = page.locator('.week-scroll');
+  await grid.evaluate((g) => { g.scrollTop = g.scrollHeight; });
+  const blk2 = page.locator('.blk-study').filter({ hasText: 'History' }).first();
+  await blk2.scrollIntoViewIfNeeded();
+  const b2 = await blk2.boundingBox();
+  const sleepBlk = await page.locator('.day-col').nth(4).locator('.blk-sleep').first().boundingBox();
+  await page.mouse.move(b2.x + b2.width / 2, b2.y + 5);
+  await page.mouse.down();
+  await page.mouse.move(b2.x + b2.width / 2, sleepBlk.y + 20, { steps: 8 });
+  const bad = await page.locator('.drop-preview.is-bad').count() === 1;
+  await page.mouse.up();
+  check('Dropping onto protected sleep is refused', bad && await page.locator('#toast').getByText('That time isn’t free').isVisible());
+
+  await page.getByRole('button', { name: 'Add a commitment' }).click();
+  const dlg = page.getByRole('dialog');
+  await dlg.getByLabel('What is it?').fill('Dentist');
+  await dlg.getByText('Just once').click();
+  await dlg.getByLabel('Date').fill('2026-11-10');
+  await dlg.getByLabel('Starts').fill('15:30');
+  await dlg.getByLabel('Ends').fill('16:30');
+  await dlg.getByRole('button', { name: 'Add commitment' }).click();
+  check('One-off commitment added for its date only', await page.locator('.task-meta').filter({ hasText: 'Tue 10 Nov only' }).isVisible() || await page.locator('.task-meta').filter({ hasText: /10.*only/ }).isVisible());
+  check('One-off commitment conflict detected', await page.locator('.task-attn').filter({ hasText: 'overlaps Look after younger brother' }).first().isVisible());
+  await ctx.close();
+}
+{
+  const { ctx, page } = await newPage({ colorScheme: 'dark' });
+  await page.goto(BASE);
+  check('Night mode follows the system setting', await page.locator('#mode-switch').getAttribute('aria-pressed') === 'true');
+  check('Night mode shows fewer elements on the home page', await page.locator('#explore').isHidden() && await page.getByText('It’s night mode, so we’re showing less.').isVisible());
+  await page.getByRole('button', { name: 'Show everything' }).click();
+  check('“Show everything” reveals the rest', await page.locator('#explore').isVisible());
+  await page.locator('#mode-switch').click();
+  check('Manual day/night switch works', await page.locator('#mode-switch').getAttribute('aria-pressed') === 'false' && !(await page.evaluate(() => document.documentElement.classList.contains('is-night'))));
+  await ctx.close();
+}
+
 await browser.close();
 if (errors.length) console.log('\nBrowser errors:\n' + errors.join('\n'));
 check('No JavaScript errors', errors.length === 0);

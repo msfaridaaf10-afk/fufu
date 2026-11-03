@@ -135,7 +135,9 @@ export function validateTask(t) {
 export function validateCommitment(c) {
   const errs = [];
   if (!c.title || !String(c.title).trim()) errs.push({ field: 'title', msg: 'Give the commitment a name.' });
-  if (!c.days || !c.days.length) errs.push({ field: 'days', msg: 'Pick at least one day.' });
+  if (c.date !== undefined && c.date !== null) {
+    if (!parseDate(c.date)) errs.push({ field: 'date', msg: 'Choose a date.' });
+  } else if (!c.days || !c.days.length) errs.push({ field: 'days', msg: 'Pick at least one day.' });
   const a = toMin(c.start);
   const b = toMin(c.end);
   if (Number.isNaN(a) || Number.isNaN(b)) errs.push({ field: 'time', msg: 'Times need to look like 17:00.' });
@@ -177,7 +179,7 @@ export function reservedBlocks(plan, startDate, days) {
       if (school.travelAfter > 0) blocks.push({ id: `travela-${d}`, type: 'travel', title: 'Travel home', start: b, end: b + school.travelAfter, fixed: true });
     }
     for (const c of plan.commitments || []) {
-      if (!c.days || !c.days.includes(wd)) continue;
+      if (c.date ? c.date !== date : !c.days || !c.days.includes(wd)) continue; // one-off or weekly
       const a = toMin(c.start);
       let b = toMin(c.end);
       if (Number.isNaN(a) || Number.isNaN(b)) continue;

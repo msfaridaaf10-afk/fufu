@@ -140,6 +140,10 @@ function renderHome(el) {
 
   <section class="entry" aria-labelledby="entry-h">
     <h2 id="entry-h" class="section-title">Where would you like to start?</h2>
+    <div class="night-only night-note">
+      <p>It’s night mode, so we’re showing less. You only need one of these — or none.</p>
+      <button type="button" class="btn btn-quiet btn-small" id="show-all">Show everything</button>
+    </div>
     <ul class="entry-cards" role="list">
       <li><a class="entry-card card-mind" href="#/checkin/thoughts" data-frag="mind">
         <span class="entry-tag evidence-label">Exhibit A</span>
@@ -164,7 +168,7 @@ function renderHome(el) {
     </div>
   </section>
 
-  <section class="journey torn-top" id="explore" aria-labelledby="journey-h" tabindex="-1">
+  <section class="journey torn-top night-hide" id="explore" aria-labelledby="journey-h" tabindex="-1">
     <div class="journey-inner">
       <h2 id="journey-h" class="section-title">One evening, five small steps</h2>
       <p class="section-sub">Use one, use all of them, or leave whenever you’re ready.</p>
@@ -187,8 +191,14 @@ function renderHome(el) {
     card.addEventListener('mouseleave', off);
     card.addEventListener('blur', off);
   });
+  $('#show-all', el).addEventListener('click', () => {
+    el.classList.add('show-all');
+    const t = $('#explore', el);
+    t.focus({ preventScroll: true });
+  });
   $('#just-explore', el).addEventListener('click', (e) => {
     e.preventDefault();
+    el.classList.add('show-all');
     const t = $('#explore', el);
     t.scrollIntoView({ behavior: document.documentElement.dataset.motion === 'reduce' ? 'auto' : 'smooth' });
     t.focus({ preventScroll: true });

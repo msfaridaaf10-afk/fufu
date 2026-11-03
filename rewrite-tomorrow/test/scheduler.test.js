@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   buildSchedule, proposeRewrite, tonightWindow, findConflicts, reservedBlocks,
-  toMin, fmtTime, absMinute, diffSchedules, validateTask, freeWindows, DAY,
+  toMin, fmtTime, absMinute, diffSchedules, validateTask, validateCommitment, freeWindows, DAY,
 } from '../public/js/scheduler.js';
 
 const START = '2026-11-02'; // a Monday
@@ -174,4 +174,17 @@ test('"planned for tonight" only claims tonight, not later days ahead of earlier
   const tue = s.study.filter((b) => b.start >= DAY && b.start < 2 * DAY);
   assert.equal(tue[0].taskId, 'chem', 'earlier deadline comes first on Tuesday');
   assert.equal(s.study[0].taskId, 'eng', 'tonight goes to the task planned for tonight');
+});
+
+test('one-off commitments appear only on their date, including overnight', () => {
+  const p = plan({ commitments: [{ id: 'dent', title: 'Dentist', date: '2026-11-04', start: '16:00', end: '17:00' }, { id: 'trip', title: 'Late flight', date: '2026-11-05', start: '23:00', end: '02:00' }] });
+  const s = buildSchedule(p, { startDate: START, nowMin: 0 });
+  const dent = s.reserved.filter((b) => b.commitmentId === 'dent');
+  assert.equal(dent.length, 1);
+  assert.equal(dent[0].start, 2 * DAY + 16 * 60);
+  const trip = s.reserved.find((b) => b.commitmentId === 'trip');
+  assert.equal(trip.end, 4 * DAY + 2 * 60);
+  assert.ok(s.conflicts.some((c) => c.kind === 'sleep' && c.a.commitmentId === 'trip'));
+  assert.equal(validateCommitment({ title: 'x', date: 'nope', start: '10:00', end: '11:00' })[0].field, 'date');
+  assert.equal(validateCommitment({ title: 'x', date: '2026-11-04', start: '10:00', end: '11:00' }).length, 0);
 });
