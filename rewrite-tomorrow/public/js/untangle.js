@@ -22,8 +22,9 @@ async function checkStatus() {
     const t = setTimeout(() => ctrl.abort(), 4000);
     const r = await fetch('api/status', { signal: ctrl.signal, headers: { Accept: 'application/json' } });
     clearTimeout(t);
+    if (r.status === 404 || r.status === 405) { aiStatus = { ai: false }; return aiStatus; } // static hosting: no AI server
     if (!r.ok) throw new Error('status');
-    const j = await r.json();
+    const j = await r.json().catch(() => ({}));
     aiStatus = { ai: !!j.ai, provider: j.provider || null };
   } catch {
     aiStatus = { ai: false, error: true };
@@ -139,7 +140,7 @@ export function renderUntangle(el) {
           <button class="btn ${st.ai ? 'btn-secondary' : 'btn-primary'}" type="button" data-mode="guided">Use guided reflection</button>
         </article>
       </div>
-      <p class="hint">More detail in <a href="#/privacy">Privacy &amp; your data</a>. ${kept().length ? '' : ''}</p>
+      <p class="hint">More detail in <a href="#privacy">Privacy &amp; your data</a>. ${kept().length ? '' : ''}</p>
     </section>
     ${keptSummariesHTML()}`;
     $$('[data-mode]', body).forEach((b) => b.addEventListener('click', () => { conv.mode = b.dataset.mode; drawChat(); }));
@@ -322,7 +323,7 @@ export function renderUntangle(el) {
     function offerPlanBridge() {
       const d = toolMessage('');
       d.innerHTML = `<p>Want to look at a possible change to tonight’s plan? You’ll see the change first, and nothing is applied unless you approve it.</p>
-        <div class="btn-row"><a class="btn btn-secondary btn-small" href="#/rewrite">Open “Rewrite this evening”</a></div>`;
+        <div class="btn-row"><a class="btn btn-secondary btn-small" href="#rewrite">Open “Rewrite this evening”</a></div>`;
     }
 
     async function makeSummary() {
@@ -376,7 +377,7 @@ export function renderUntangle(el) {
         if (v.canWait) canWait(v.canWait);
         e.target.textContent = 'Added';
         e.target.disabled = true;
-        toast('Added to tonight’s “Close the day” card.', { action: { label: 'Open it', fn: () => { location.hash = '#/close'; } } });
+        toast('Added to tonight’s “Close the day” card.', { action: { label: 'Open it', fn: () => { location.hash = '#close'; } } });
       });
       $('[data-keep]', d).addEventListener('click', (e) => {
         keepSummary({ ...val(), date: new Date().toLocaleDateString() });
@@ -411,7 +412,7 @@ export function renderUntangle(el) {
             ['title', 'minutes'].forEach((n) => fieldError(f, n, (errs.find((x) => x.field === n) || {}).msg));
             if (errs.length) return;
             updatePlan((p) => { p.tasks.push(t); }, `Add “${t.title}”`);
-            toast(`Added “${t.title}” to your plan.`, { action: { label: 'See plan', fn: () => { location.hash = '#/plan'; } } });
+            toast(`Added “${t.title}” to your plan.`, { action: { label: 'See plan', fn: () => { location.hash = '#plan'; } } });
             close(true);
           });
         },
@@ -426,7 +427,7 @@ export function renderUntangle(el) {
         <div class="quiet-check" aria-hidden="true"><svg viewBox="0 0 48 48" width="48" height="48"><circle cx="24" cy="24" r="22" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15 25l6 6 12-14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <h2 id="stop-h" tabindex="-1">Okay. That’s enough for tonight.</h2>
         <p>The conversation has been cleared from this page.${conv.support ? ' Please do talk to someone you trust about what you shared.' : ''}</p>
-        <div class="btn-row"><a class="btn btn-primary" href="#/close">Close the day</a><a class="btn btn-quiet" href="#/">Back to start</a></div>
+        <div class="btn-row"><a class="btn btn-primary" href="#close">Close the day</a><a class="btn btn-quiet" href="#home">Back to start</a></div>
       </section>`;
       $('#stop-h', body).focus();
     }

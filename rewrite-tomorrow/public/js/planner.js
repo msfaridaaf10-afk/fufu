@@ -1,6 +1,6 @@
 // Sleep-protecting study planner: settings, commitments, tasks, weekly calendar,
 // agenda, conflicts, unscheduled work, moves with undo, and .ics export.
-import { esc, $, $$, toast, openDialog, confirmDialog, fieldError, download, reducedMotion } from './ui.js';
+import { esc, $, $$, toast, openDialog, confirmDialog, fieldError, download, reducedMotion, inFrame } from './ui.js';
 import { state, subscribe, getPlan, updatePlan, schedule, clock, undo, canUndo, isDemo, enterDemo } from './store.js';
 import {
   DAY, toMin, fmtTime, fmtDuration, label, dayName, addDays, parseDate, absMinute,
@@ -40,7 +40,7 @@ export function renderPlanner(el) {
         </div>
         <div class="planner-tools">
           <button class="btn btn-secondary" type="button" id="undo-btn" ${canUndo() ? '' : 'disabled'}>Undo</button>
-          <a class="btn btn-primary" href="#/rewrite">Rewrite this evening</a>
+          <a class="btn btn-primary" href="#rewrite">Rewrite this evening</a>
         </div>
       </div>
       ${!isDemo() && !plan.tasks.length ? `<p class="empty-callout paper-card">Start with your sleep and school times below, then add a task. Want to see how it works first? <button class="btn btn-quiet btn-small" type="button" id="pl-sample">Explore a sample day</button></p>` : ''}
@@ -76,7 +76,7 @@ export function renderPlanner(el) {
         ${ui.view === 'week' ? weekHTML(sched, c) : agendaHTML(sched, c)}
         <div class="export-row">
           <label class="check-inline"><input type="checkbox" id="exp-wind"> Include wind-down reminders</label>
-          <button class="btn btn-secondary" type="button" id="export">Export study sessions (.ics)</button>
+          <button class="btn btn-secondary" type="button" id="export">${inFrame ? 'Copy calendar file (.ics)' : 'Export study sessions (.ics)'}</button>
           <p class="hint">The calendar file contains only your scheduled study sessions${'' /* and optional wind-down */} — no reflections or check-ins. Times use this device’s time zone (${esc(Intl.DateTimeFormat().resolvedOptions().timeZone || 'local')}).</p>
         </div>
       </section>
@@ -869,5 +869,5 @@ function exportICS(sched, c, includeWind) {
   if (!events.length) { toast('There are no scheduled study sessions to export yet.'); return; }
   const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Rewrite Tomorrow//Study plan//EN', 'CALSCALE:GREGORIAN', ...events, 'END:VCALENDAR', ''].join('\r\n');
   download(isDemo() ? 'rewrite-tomorrow-sample.ics' : 'rewrite-tomorrow-plan.ics', ics, 'text/calendar');
-  toast(`Exported ${events.length} calendar item${events.length > 1 ? 's' : ''}.`);
+  if (!inFrame) toast(`Exported ${events.length} calendar item${events.length > 1 ? 's' : ''}.`);
 }

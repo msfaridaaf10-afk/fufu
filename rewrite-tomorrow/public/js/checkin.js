@@ -78,7 +78,7 @@ export function renderCheckin(el, params = []) {
         <p class="form-error" id="ci-error" role="alert" hidden></p>
         <div class="btn-row">
           <button class="btn btn-primary" type="submit">Continue</button>
-          <a class="btn btn-quiet" href="#/close">Skip to winding down</a>
+          <a class="btn btn-quiet" href="#close">Skip to winding down</a>
         </div>
       </form>
     </div>`;
@@ -161,7 +161,7 @@ export function renderCheckin(el, params = []) {
         ${recs.map((r, i) => recCard(r, i)).join('')}
       </ul>
       <div class="btn-row">
-        <a class="btn btn-secondary" href="#/close">Go to “Close the day”</a>
+        <a class="btn btn-secondary" href="#close">Go to “Close the day”</a>
         <button class="btn btn-quiet" type="button" id="ci-again">Start the check-in again</button>
       </div>
     </div>`;
@@ -179,7 +179,7 @@ export function renderCheckin(el, params = []) {
       card.classList.add('is-accepted');
       b.textContent = 'Added to tonight’s card';
       b.disabled = true;
-      toast('Added to tonight’s “Close the day” card.', { action: { label: 'Open it', fn: () => { location.hash = '#/close'; } } });
+      toast('Added to tonight’s “Close the day” card.', { action: { label: 'Open it', fn: () => { location.hash = '#close'; } } });
     }));
     el.querySelectorAll('[data-rec-dismiss]').forEach((b) => b.addEventListener('click', () => {
       const card = b.closest('.rec');
@@ -219,18 +219,18 @@ function buildRecs(s) {
       body: a.work === 'yes'
         ? 'Compare what you planned with the time left before your wind-down. Flexible work can move, and nothing changes until you approve it.'
         : 'Put your tasks and deadlines in one place. The planner protects your sleep time first, then fits work around it.',
-      href: a.work === 'yes' ? '#/rewrite' : '#/plan',
+      href: a.work === 'yes' ? '#rewrite' : '#plan',
       cta: a.work === 'yes' ? 'Rewrite this evening' : 'Plan my week',
       tone: 'work',
     });
   }
   if (sel.has('thoughts')) {
     if (a.thoughts === 'talk') {
-      recs.push({ tag: 'Optional reflection', title: 'Talk it through', body: 'Untangle can help you put it into words or find one small next step. It’s an optional tool — you choose AI or guided prompts.', href: '#/untangle', cta: 'Open Untangle', tone: 'mind' });
+      recs.push({ tag: 'Optional reflection', title: 'Talk it through', body: 'Untangle can help you put it into words or find one small next step. It’s an optional tool — you choose AI or guided prompts.', href: '#untangle', cta: 'Open Untangle', tone: 'mind' });
     } else if (a.thoughts === 'nowrite') {
-      recs.push({ tag: 'No writing needed', title: 'Notice it, then set it aside', body: 'Name the thought silently, decide “this can wait until tomorrow”, and try a few slow breaths. You don’t have to solve it tonight.', decision: 'Set my thoughts aside until tomorrow.', href: '#/close', cta: 'Try slow breathing', tone: 'mind' });
+      recs.push({ tag: 'No writing needed', title: 'Notice it, then set it aside', body: 'Name the thought silently, decide “this can wait until tomorrow”, and try a few slow breaths. You don’t have to solve it tonight.', decision: 'Set my thoughts aside until tomorrow.', href: '#close', cta: 'Try slow breathing', tone: 'mind' });
     } else {
-      recs.push({ tag: 'Thought offloading', title: 'Put it down for tonight', body: 'Write what’s on your mind on a paper card and choose what happens to it. Nothing you write is saved.', href: '#/putdown', cta: 'Write it down', tone: 'mind' });
+      recs.push({ tag: 'Thought offloading', title: 'Put it down for tonight', body: 'Write what’s on your mind on a paper card and choose what happens to it. Nothing you write is saved.', href: '#putdown', cta: 'Write it down', tone: 'mind' });
     }
   }
   if (sel.has('happened')) {
@@ -242,7 +242,7 @@ function buildRecs(s) {
         : a.happened === 'calm'
           ? 'Slow breathing or a short grounding exercise can help your body settle. If it’s still on your mind tomorrow, talking to someone you trust can help.'
           : 'Untangle can help you put it into words, if you want. If it involves someone hurting you or you feel unsafe, please talk to a trusted adult — the support page lists numbers.',
-      href: a.happened === 'calm' ? '#/close' : a.happened === 'person' ? '#/support' : '#/untangle',
+      href: a.happened === 'calm' ? '#close' : a.happened === 'person' ? '#support' : '#untangle',
       cta: a.happened === 'calm' ? 'Try slow breathing' : a.happened === 'person' ? 'See support options' : 'Open Untangle',
       decision: a.happened === 'person' ? 'Tell someone I trust tomorrow.' : null,
       editable: a.happened === 'person',
@@ -269,7 +269,7 @@ function buildRecs(s) {
       tag: 'Low pressure',
       title: 'You don’t have to force sleep',
       body: 'Trying hard to fall asleep can make it harder. Dim the lights and do something quiet and screen-free — reading paper pages, gentle stretching or slow breathing — until you feel sleepy. Rest still counts.',
-      href: '#/close',
+      href: '#close',
       cta: 'Try slow breathing',
       decision: 'Do something quiet in dim light until I feel sleepy.',
       tone: 'rest',
@@ -288,8 +288,8 @@ function buildRecs(s) {
     });
   }
   if (sel.has('unsure') || sel.has('skip') || !recs.length) {
-    recs.push({ tag: 'Gentle start', title: 'Wind down without a plan', body: 'Close the day, try a minute of comfortable breathing, then put the screen down when you’re ready.', href: '#/close', cta: 'Close the day', tone: 'rest' });
-    if (!sel.has('skip')) recs.push({ tag: 'Optional', title: 'Talk it through', body: 'Not sure what’s going on? Untangle can help you find words for it — or not. Either is fine.', href: '#/untangle', cta: 'Open Untangle', tone: 'mind' });
+    recs.push({ tag: 'Gentle start', title: 'Wind down without a plan', body: 'Close the day, try a minute of comfortable breathing, then put the screen down when you’re ready.', href: '#close', cta: 'Close the day', tone: 'rest' });
+    if (!sel.has('skip')) recs.push({ tag: 'Optional', title: 'Talk it through', body: 'Not sure what’s going on? Untangle can help you find words for it — or not. Either is fine.', href: '#untangle', cta: 'Open Untangle', tone: 'mind' });
   }
   return recs;
 }

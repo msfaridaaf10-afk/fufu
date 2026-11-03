@@ -107,7 +107,27 @@ export function reducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
+export const inFrame = (() => { try { return window.self !== window.top; } catch { return true; } })();
+
+function showCopyable(filename, text) {
+  openDialog({
+    title: 'Copy this instead',
+    build(body) {
+      body.innerHTML = `<p>Saving files isn’t possible on this page, so here is the content of <strong>${esc(filename)}</strong>. Copy it into a note or file.</p>
+        <label class="field"><span class="field-label">${esc(filename)}</span><textarea id="copy-text" rows="10" readonly>${esc(text)}</textarea></label>
+        <div class="btn-row"><button type="button" class="btn btn-primary" id="copy-btn">Copy</button></div>`;
+      const ta = body.querySelector('#copy-text');
+      body.querySelector('#copy-btn').addEventListener('click', (e) => {
+        const done = () => { e.target.textContent = 'Copied'; };
+        const fallback = () => { ta.focus(); ta.select(); e.target.textContent = 'Selected — press Ctrl+C or ⌘C'; };
+        try { navigator.clipboard.writeText(text).then(done, fallback); } catch { fallback(); }
+      });
+    },
+  });
+}
+
 export function download(filename, text, type = 'text/plain') {
+  if (inFrame) { showCopyable(filename, text); return; }
   const blob = new Blob([text], { type });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');

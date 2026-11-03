@@ -175,7 +175,7 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus, main:focus { outline: none; bo
 .kicker { display: flex; gap: .7em; align-items: baseline; flex-wrap: wrap; color: var(--ink-soft); margin-bottom: .6em; font-size: .95rem; }
 
 /* ------------------------------------------------------------------ header */
-.site-header { position: sticky; top: 0; z-index: 30; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(6px); border-bottom: 1px solid var(--line); }
+.site-header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(6px); border-bottom: 1px solid var(--line); }
 .header-inner { max-width: var(--maxw); margin: 0 auto; padding: 10px var(--gutter); display: flex; align-items: center; gap: 18px; }
 .wordmark { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; letter-spacing: -.01em; white-space: nowrap; }
 .wordmark em { font-weight: 500; }
@@ -690,3 +690,5 @@ button.blk-fixed { cursor: pointer; }
 .is-night .entry-card:hover { box-shadow: var(--shadow); }
 .is-night .hero-art { opacity: .9; }
 .is-night .display { font-size: clamp(2.2rem, 5.4vw, 3.8rem); }
+
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 31; background: var(--bg); }

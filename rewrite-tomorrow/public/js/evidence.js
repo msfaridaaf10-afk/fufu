@@ -78,7 +78,7 @@ export function renderEvidence(el) {
             <p class="case-label"><span class="evidence-label">Case status</span></p>
             <h2 id="ev-status">Open. Next step: tonight.</h2>
             <p>The investigation showed what short sleep can take. This site is about taking a little of it back — one small step at a time.</p>
-            <a class="btn btn-primary" href="#/checkin">What’s keeping me up?</a>
+            <a class="btn btn-primary" href="#checkin">What’s keeping me up?</a>
           </article>
         </li>
       </ol>

@@ -257,7 +257,7 @@ const shot = async (page, name) => { if (SHOTS) await page.screenshot({ path: `$
     found = await page.evaluate(() => document.activeElement.textContent.trim() === 'What’s keeping me up?');
   }
   await page.keyboard.press('Enter');
-  check('Keyboard reaches and opens the check-in', found && page.url().includes('#/checkin'));
+  check('Keyboard reaches and opens the check-in', found && page.url().includes('#checkin'));
   const focusVisible = await page.evaluate(() => getComputedStyle(document.activeElement).outlineStyle !== 'none' || document.activeElement.tagName === 'H1');
   check('Focus moves to the new page heading', focusVisible);
   await ctx.close();

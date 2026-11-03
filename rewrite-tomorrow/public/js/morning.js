@@ -37,7 +37,7 @@ export function renderMorning(el) {
         </fieldset>
         <div class="btn-row">
           <button class="btn btn-primary" type="submit" ${isDemo() ? 'disabled' : ''}>Save this morning</button>
-          <a class="btn btn-quiet" href="#/">Skip for today</a>
+          <a class="btn btn-quiet" href="#home">Skip for today</a>
         </div>
       </form>
       ${observationsHTML(entries)}

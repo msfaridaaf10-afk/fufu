@@ -165,8 +165,8 @@ export function renderRewrite(el) {
           <h1 id="done-h" tabindex="-1">Tonight is rewritten.</h1>
           <p>${r.changes.filter((x) => x.kind !== 'keep').length} change${r.changes.filter((x) => x.kind !== 'keep').length === 1 ? '' : 's'} applied. Your protected sleep time hasn’t moved.</p>
           <div class="btn-row">
-            <a class="btn btn-primary" href="#/close">Close the day</a>
-            <a class="btn btn-secondary" href="#/plan">See the full week</a>
+            <a class="btn btn-primary" href="#close">Close the day</a>
+            <a class="btn btn-secondary" href="#plan">See the full week</a>
             <button class="btn btn-quiet" type="button" id="rw-undo">Undo</button>
           </div>
         </section>
@@ -183,7 +183,7 @@ export function renderRewrite(el) {
       <p class="lede">Add what you were planning to do tonight — a rough guess of the time is fine.</p>
       <div class="btn-row">
         <button class="btn btn-primary" type="button" id="rw-add0">Add tonight’s work</button>
-        <a class="btn btn-secondary" href="#/plan">Set up my week first</a>
+        <a class="btn btn-secondary" href="#plan">Set up my week first</a>
         ${isDemo() ? '' : '<button class="btn btn-quiet" type="button" id="rw-demo">Explore a sample day</button>'}
       </div>
     </div>`;

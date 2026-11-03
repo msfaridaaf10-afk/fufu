@@ -126,7 +126,7 @@ export function renderPutDown(el) {
         out.innerHTML = `
           <div class="paper-card result-card"><h2 tabindex="-1">Left here for now.</h2>
           <p>The card is folded away and cleared from this page. If it comes back tomorrow, you can deal with it then.</p>
-          <div class="btn-row"><a class="btn btn-primary" href="#/close">Close the day</a><button class="btn btn-quiet" type="button" data-again>Write another</button></div></div>`;
+          <div class="btn-row"><a class="btn btn-primary" href="#close">Close the day</a><button class="btn btn-quiet" type="button" data-again>Write another</button></div></div>`;
         $('h2', out).focus();
         $('[data-again]', out).addEventListener('click', reset);
         $('.pd-stage', el).remove();
@@ -138,8 +138,8 @@ export function renderPutDown(el) {
         <div class="paper-card result-card"><h2 tabindex="-1">Talking to someone</h2>
         <p>Who feels easiest to talk to? A parent or carer, an older sibling, a friend, a teacher, the school counsellor or nurse.</p>
         <p>You could start with: <em>“Can I talk to you about something that’s been on my mind?”</em> You don’t have to explain everything at once.</p>
-        <p class="hint">If this is about feeling unsafe or someone hurting you, please see <a href="#/support">Getting support</a>.</p>
-        <div class="btn-row"><button class="btn btn-primary" type="button" data-decide>I’ll talk to someone</button><a class="btn btn-quiet" href="#/close">Close the day</a></div></div>`;
+        <p class="hint">If this is about feeling unsafe or someone hurting you, please see <a href="#support">Getting support</a>.</p>
+        <div class="btn-row"><button class="btn btn-primary" type="button" data-decide>I’ll talk to someone</button><a class="btn btn-quiet" href="#close">Close the day</a></div></div>`;
       $('h2', out).focus();
       $('[data-decide]', out).addEventListener('click', (e) => { decide('Talk to someone I trust about what’s on my mind.'); e.target.disabled = true; e.target.textContent = 'Added to tonight’s card'; });
       return;
@@ -158,7 +158,7 @@ export function renderPutDown(el) {
         e.preventDefault();
         const w = e.target.elements.when.value.trim() || 'later';
         canWait(`Return to a thought: ${w}.`);
-        toast('Added to tonight’s card.', { action: { label: 'Open it', fn: () => { location.hash = '#/close'; } } });
+        toast('Added to tonight’s card.', { action: { label: 'Open it', fn: () => { location.hash = '#close'; } } });
       });
       return;
     }
@@ -198,7 +198,7 @@ export function renderPutDown(el) {
           if (errs.length) return;
           updatePlan((p) => { p.tasks.push(t); }, `Add “${t.title}”`);
           decide(`Small plan: ${t.title}.`);
-          toast(`Added “${t.title}” to your plan.`, { action: { label: 'See plan', fn: () => { location.hash = '#/plan'; } } });
+          toast(`Added “${t.title}” to your plan.`, { action: { label: 'See plan', fn: () => { location.hash = '#plan'; } } });
           close();
         });
       },

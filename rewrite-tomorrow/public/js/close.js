@@ -1,6 +1,6 @@
 // "Close the day" — gathers tonight's choices, offers optional breathing, a
 // printable wind-down card, and a clear, quiet stopping point.
-import { esc, $, $$, toast, download, reducedMotion } from './ui.js';
+import { esc, $, $$, toast, download, reducedMotion, inFrame } from './ui.js';
 import { state } from './store.js';
 
 const DEFAULT_STEPS = [
@@ -60,13 +60,13 @@ export function renderClose(el) {
 
       <section class="paper-sheet" aria-labelledby="wc-h">
         <h2 id="wc-h">A wind-down card for your bedside</h2>
-        <p>Edit the steps, then print it or save it, so you don’t need the screen tomorrow night.</p>
+        <p>Edit the steps, then ${inFrame ? 'copy it into a note or write it on paper' : 'print it or save it'}, so you don’t need the screen tomorrow night.</p>
         <ol class="wind-steps" id="wind-steps">
           ${steps.map((st, i) => `<li><label class="visually-hidden" for="ws-${i}">Step ${i + 1}</label><input id="ws-${i}" data-step="${i}" value="${esc(st)}" maxlength="80"></li>`).join('')}
         </ol>
         <div class="btn-row">
-          <button class="btn btn-secondary" type="button" id="wc-print">Print card</button>
-          <button class="btn btn-secondary" type="button" id="wc-save">Save as a text file</button>
+          ${inFrame ? '' : '<button class="btn btn-secondary" type="button" id="wc-print">Print card</button>'}
+          <button class="btn btn-secondary" type="button" id="wc-save">${inFrame ? 'Copy card text' : 'Save as a text file'}</button>
         </div>
       </section>
 
@@ -101,7 +101,8 @@ export function renderClose(el) {
       const li = $$('.print-card ol li', el)[Number(i.dataset.step)];
       if (li) li.textContent = i.value;
     }));
-    $('#wc-print', el).addEventListener('click', () => window.print());
+    const pr = $('#wc-print', el);
+    if (pr) pr.addEventListener('click', () => window.print());
     $('#wc-save', el).addEventListener('click', () => {
       const s = state.session;
       const text = [

@@ -32,7 +32,7 @@ function emptyPersonal() {
 
 const storedPrefs = safeGet(PREFS_KEY);
 export const state = {
-  prefs: { ...DEFAULT_PREFS, ...(storedPrefs || {}) },
+  prefs: { ...DEFAULT_PREFS, ...(window.__rtHostTheme ? { theme: window.__rtHostTheme } : {}), ...(storedPrefs || {}) },
   personal: emptyPersonal(),
   demo: null,
   mode: 'personal',

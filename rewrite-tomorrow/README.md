@@ -33,6 +33,12 @@ ANTHROPIC_API_KEY=sk-ant-... npm start
 
 If the key is missing or wrong, or the service can't be reached, the page says so and offers guided reflection. Scripted replies are never presented as AI.
 
+### Hosting as a claude.ai page
+
+`node scripts/build-artifact.mjs` writes `dist-artifact/index.html` without the `<html>`, `<head>` and `<body>` tags, because claude.ai's page host adds its own. Publish it together with `css/`, `js/` and `favicon.svg` from `public/`.
+
+There is no server on that host, so Untangle uses guided reflection. Downloads and printing are blocked there too. The site detects this: calendar and wind-down files open as text you can copy, and the Print button is hidden. Page addresses are plain `#name` (for example `#plan`, `#preferences`). Older `#/name` links still work.
+
 ### Tests
 
 ```bash

@@ -7,6 +7,8 @@
     if (p.accent) r.dataset.accent = p.accent;
     if (p.texture === false) r.dataset.texture = 'off';
     if (p.motion) r.dataset.motion = p.motion;
+    var host = r.getAttribute('data-theme');
+    if (!p.theme && (host === 'dark' || host === 'light')) { p.theme = host; r.dataset.theme = host; window.__rtHostTheme = host; }
     var theme = p.theme || 'system';
     if (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) r.classList.add('is-night');
   } catch (e) { /* storage unavailable: defaults apply */ }

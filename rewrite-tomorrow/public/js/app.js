@@ -37,6 +37,10 @@ $('#mode-switch').addEventListener('click', () => {
 });
 
 // ------------------------------------------------------------ nav
+document.querySelector('.skip-link').addEventListener('click', (e) => {
+  e.preventDefault();
+  main.focus();
+});
 const menuBtn = $('.menu-toggle');
 const nav = $('#site-nav');
 menuBtn.addEventListener('click', () => {
@@ -66,7 +70,7 @@ function updateDemoBanner() {
 $('#exit-demo').addEventListener('click', () => {
   exitDemo();
   toast('You’ve left the sample day. Your own plan is unchanged.');
-  if (location.hash.startsWith('#/plan') || location.hash.startsWith('#/rewrite')) route();
+  if (location.hash.startsWith('#plan') || location.hash.startsWith('#rewrite')) route();
 });
 
 // ------------------------------------------------------------ router
@@ -80,7 +84,7 @@ const routes = {
   close: renderClose,
   morning: renderMorning,
   evidence: renderEvidence,
-  settings: renderSettings,
+  preferences: renderSettings,
   privacy: renderPrivacy,
   support: renderSupport,
   about: renderAbout,
@@ -88,8 +92,11 @@ const routes = {
 
 let cleanup = null;
 function route() {
+  // Plain '#name' addresses (old '#/name' links still work). 'checkin-thoughts' → route 'checkin', param 'thoughts'.
   const hash = location.hash.replace(/^#\/?/, '');
-  const [name, ...rest] = hash.split('/');
+  let [name, ...rest] = hash.split(/[/-]/);
+  if (name === 'home') name = '';
+  if (name === 'settings') name = 'preferences';
   const view = routes[name] || renderNotFound;
   if (typeof cleanup === 'function') cleanup();
   cleanup = null;
@@ -127,8 +134,8 @@ function renderHome(el) {
       <h1 class="display">Tomorrow starts with what you need <em>tonight.</em></h1>
       <p class="lede">Untangle your thoughts, make room for rest, and build a study plan you can actually live with.</p>
       <div class="btn-row">
-        <a class="btn btn-primary btn-large" href="#/checkin">What’s keeping me up?</a>
-        <a class="btn btn-secondary btn-large" href="#/plan">Plan my week</a>
+        <a class="btn btn-primary btn-large" href="#checkin">What’s keeping me up?</a>
+        <a class="btn btn-secondary btn-large" href="#plan">Plan my week</a>
       </div>
       <p class="hero-note">No account. Nothing is saved unless you choose to. You can stop at any point.</p>
     </div>
@@ -145,17 +152,17 @@ function renderHome(el) {
       <button type="button" class="btn btn-quiet btn-small" id="show-all">Show everything</button>
     </div>
     <ul class="entry-cards" role="list">
-      <li><a class="entry-card card-mind" href="#/checkin/thoughts" data-frag="mind">
+      <li><a class="entry-card card-mind" href="#checkin-thoughts" data-frag="mind">
         <span class="entry-tag evidence-label">Exhibit A</span>
         <span class="entry-title">My head feels full.</span>
         <span class="entry-sub">Sort out what’s on your mind, write it down, or just set it aside.</span>
         <span class="entry-go" aria-hidden="true">→</span></a></li>
-      <li><a class="entry-card card-work" href="#/rewrite" data-frag="work">
+      <li><a class="entry-card card-work" href="#rewrite" data-frag="work">
         <span class="entry-tag evidence-label">Exhibit B</span>
         <span class="entry-title">My work won’t fit.</span>
         <span class="entry-sub">See what really fits before your sleep time, and what could move.</span>
         <span class="entry-go" aria-hidden="true">→</span></a></li>
-      <li><a class="entry-card card-rest" href="#/close" data-frag="rest">
+      <li><a class="entry-card card-rest" href="#close" data-frag="rest">
         <span class="entry-tag evidence-label">Exhibit C</span>
         <span class="entry-title">I want to wind down.</span>
         <span class="entry-sub">Close the day, try some slow breathing, and put the screen down.</span>
@@ -164,7 +171,7 @@ function renderHome(el) {
     <div class="explore-row">
       <a class="btn btn-quiet" href="#explore" id="just-explore">Just explore</a>
       <button class="btn btn-quiet" type="button" id="try-sample">Explore a sample day</button>
-      <a class="btn btn-quiet" href="#/evidence">Explore the evidence behind Stolen: Tomorrow</a>
+      <a class="btn btn-quiet" href="#evidence">Explore the evidence behind Stolen: Tomorrow</a>
     </div>
   </section>
 
@@ -173,11 +180,11 @@ function renderHome(el) {
       <h2 id="journey-h" class="section-title">One evening, five small steps</h2>
       <p class="section-sub">Use one, use all of them, or leave whenever you’re ready.</p>
       <ol class="journey-steps">
-        <li><a href="#/checkin"><span class="step-num">01</span><span class="step-q">What is keeping me up?</span><span class="step-a">A quick check-in. Skip anything.</span></a></li>
-        <li><a href="#/untangle"><span class="step-num">02</span><span class="step-q">What might help tonight?</span><span class="step-a">Talk it through, or write it down and put it away.</span></a></li>
-        <li><a href="#/rewrite"><span class="step-num">03</span><span class="step-q">What can change in my plan?</span><span class="step-a">Rewrite this evening without giving up sleep.</span></a></li>
-        <li><a href="#/close"><span class="step-num">04</span><span class="step-q">Let me put my phone down.</span><span class="step-a">Gather your decisions. You can stop here.</span></a></li>
-        <li><a href="#/morning"><span class="step-num">05</span><span class="step-q">What did I notice this morning?</span><span class="step-a">Four optional questions, then on with your day.</span></a></li>
+        <li><a href="#checkin"><span class="step-num">01</span><span class="step-q">What is keeping me up?</span><span class="step-a">A quick check-in. Skip anything.</span></a></li>
+        <li><a href="#untangle"><span class="step-num">02</span><span class="step-q">What might help tonight?</span><span class="step-a">Talk it through, or write it down and put it away.</span></a></li>
+        <li><a href="#rewrite"><span class="step-num">03</span><span class="step-q">What can change in my plan?</span><span class="step-a">Rewrite this evening without giving up sleep.</span></a></li>
+        <li><a href="#close"><span class="step-num">04</span><span class="step-q">Let me put my phone down.</span><span class="step-a">Gather your decisions. You can stop here.</span></a></li>
+        <li><a href="#morning"><span class="step-num">05</span><span class="step-q">What did I notice this morning?</span><span class="step-a">Four optional questions, then on with your day.</span></a></li>
       </ol>
     </div>
   </section>`;
@@ -205,7 +212,7 @@ function renderHome(el) {
   });
   $('#try-sample', el).addEventListener('click', () => {
     enterDemo();
-    location.hash = '#/rewrite';
+    location.hash = '#rewrite';
     toast('Sample day loaded: a fictional student’s Monday at 17:30.');
   });
 }
@@ -303,7 +310,7 @@ function renderPrivacy(el) {
     <h2>Without an account</h2>
     <p>You never need an account. There are no analytics, no advertising trackers and no notifications. The fonts are loaded from Google Fonts, which receives an ordinary web request (like any website visit) but none of your content.</p>
     <h2>Your plan, check-ins and morning notes</h2>
-    <p>These stay in this browser’s memory and disappear when you close or reload the page — unless you turn on <a href="#/settings">“Remember on this device”</a>. Then they are stored in this browser’s local storage, on this device only. They are never sent to our server.</p>
+    <p>These stay in this browser’s memory and disappear when you close or reload the page — unless you turn on <a href="#preferences">“Remember on this device”</a>. Then they are stored in this browser’s local storage, on this device only. They are never sent to our server.</p>
     <p>Appearance settings (theme, colours, texture, motion) are always remembered on this device so the page looks right next time.</p>
     <h2>“Put it down for tonight”</h2>
     <p>Private writing stays on your screen. It is never saved, never sent anywhere and never added to your calendar or exports. Closing the card clears it.</p>
@@ -317,9 +324,9 @@ function renderPrivacy(el) {
     <h2>Calendar export</h2>
     <p>The .ics file only contains study sessions and (if you choose) wind-down reminders from your approved plan. It never includes reflections, check-ins or private writing.</p>
     <h2>Deleting</h2>
-    <p>Use <a href="#/settings">Settings → Delete everything</a> to clear all stored data from this device at once.</p>
+    <p>Use <a href="#preferences">Settings → Delete everything</a> to clear all stored data from this device at once.</p>
     <h2>Limits</h2>
-    <p>No online service can promise absolute confidentiality. If something is serious or urgent, please talk to a trusted adult — see <a href="#/support">Getting support</a>.</p>
+    <p>No online service can promise absolute confidentiality. If something is serious or urgent, please talk to a trusted adult — see <a href="#support">Getting support</a>.</p>
   </article>`;
 }
 
@@ -351,12 +358,12 @@ function renderAbout(el) {
       <li>It isn’t medical care, therapy or CBT-I, and it doesn’t diagnose anything. We haven’t tested whether it improves sleep, mood or grades — that would need a proper study.</li>
       <li>We’re evaluating it for usability and acceptability: can students make a realistic plan, understand the suggestions, finish something useful quickly, feel supported rather than judged, and stop comfortably?</li>
     </ul>
-    <p><a href="#/evidence">See the evidence room →</a></p>
+    <p><a href="#evidence">See the evidence room →</a></p>
   </article>`;
 }
 
 function renderNotFound(el) {
-  el.innerHTML = `<div class="page-head"><h1>This page isn’t here</h1><p><a href="#/">Go back to the start</a></p></div>`;
+  el.innerHTML = `<div class="page-head"><h1>This page isn’t here</h1><p><a href="#home">Go back to the start</a></p></div>`;
 }
 
 // ------------------------------------------------------------ boot
