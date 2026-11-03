@@ -27,3 +27,7 @@ To host it, upload `index.html`, `style.css` and `game.js` to any static host (G
 | The Commons | Listening, speaking up, and working with the school |
 
 To change the wording, edit the `FRAGS` list near the top of `game.js`. The closing note lives in `index.html` (`.fin-note`).
+
+## Also in this repository
+
+**[Rewrite Tomorrow](rewrite-tomorrow/)**: a sleep-protecting study planner and wind-down companion for the *Stolen: Tomorrow* sleep project. See `rewrite-tomorrow/README.md`.
