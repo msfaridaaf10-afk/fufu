@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en" data-theme="system" data-accent="lavender" data-texture="on" data-motion="system">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Rewrite Tomorrow</title>
+  <meta name="description" content="Untangle your thoughts, make room for rest, and build a study plan you can actually live with. The practical companion to the Stolen: Tomorrow sleep investigation.">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#F5F0E8" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#171525" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Courier+Prime:wght@400;700&family=Fraunces:ital,opsz,wght,SOFT@0,9..144,400..800,50;1,9..144,400..700,50&display=swap">
+  <link rel="stylesheet" href="css/app.css">
+  <script src="js/boot.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header" role="banner">
+    <div class="header-inner">
+      <a class="wordmark" href="#/" aria-label="Rewrite Tomorrow, home">
+        <span class="wordmark-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="28" height="28"><path d="M5 22c4-9 9-14 22-15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="27" cy="7" r="3" fill="var(--burgundy)"/><path d="M4 26h18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+        </span>
+        <span class="wordmark-text">Rewrite <em>Tomorrow</em></span>
+      </a>
+
+      <button class="menu-toggle btn btn-quiet" type="button" aria-expanded="false" aria-controls="site-nav">
+        <span aria-hidden="true" class="menu-icon"></span> Menu
+      </button>
+
+      <nav id="site-nav" class="site-nav" aria-label="Main">
+        <ul>
+          <li><a href="#/checkin">Tonight</a></li>
+          <li><a href="#/untangle">Untangle</a></li>
+          <li><a href="#/plan">Plan</a></li>
+          <li><a href="#/rewrite">Rewrite this evening</a></li>
+          <li><a href="#/morning">Morning</a></li>
+          <li><a href="#/evidence">Evidence</a></li>
+          <li><a href="#/settings">Settings</a></li>
+        </ul>
+      </nav>
+
+      <button id="mode-switch" class="mode-switch" type="button" aria-pressed="false">
+        <span class="mode-switch-track" aria-hidden="true"><span class="mode-switch-thumb"></span></span>
+        <span class="mode-switch-label">Night mode</span>
+      </button>
+    </div>
+    <div id="demo-banner" class="demo-banner" hidden>
+      <p><strong>Sample day.</strong> <span id="demo-label">Fictional data</span>. Nothing here is saved or mixed with your own plan.</p>
+      <button type="button" class="btn btn-small btn-secondary" id="exit-demo">Leave sample day</button>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1"></main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-line"><span class="evidence-label">Case file</span> The practical companion to <strong>Stolen: Tomorrow</strong> — a Grade 12 investigation into sleep, brain health and learning.</p>
+      <p class="footer-small">Rewrite Tomorrow is an educational planning and wind-down tool. It is not medical advice, therapy or an emergency service. If you are in danger right now in the UAE, call 999 (police) or 998 (ambulance).</p>
+      <p class="footer-links"><a href="#/privacy">Privacy &amp; your data</a> · <a href="#/support">Getting support</a> · <a href="#/about">About this project</a></p>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <div id="sr-status" class="visually-hidden" role="status" aria-live="polite"></div>
+
+  <script type="module" src="js/app.js"></script>
+  <noscript><p class="noscript">Rewrite Tomorrow needs JavaScript to plan your week. The <a href="#/evidence">evidence</a> and support information are also described in the project README.</p></noscript>
+</body>
+</html>

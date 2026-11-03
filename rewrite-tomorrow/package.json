@@ -1,0 +1,18 @@
+{
+  "name": "rewrite-tomorrow",
+  "version": "1.0.0",
+  "description": "Rewrite Tomorrow — sleep-protecting study planner and wind-down companion",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.4.0"
+  },
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  }
+}
