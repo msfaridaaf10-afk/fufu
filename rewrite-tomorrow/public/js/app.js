@@ -1,6 +1,6 @@
 import { state, subscribe, setPref, enterDemo, exitDemo, isDemo, deleteEverything, persist } from './store.js';
 import { esc, $, $$, toast, confirmDialog, announce } from './ui.js';
-import { brainSVG, lightFragment } from './brain.js';
+import { lightFragment } from './brain.js';
 import { renderCheckin } from './checkin.js';
 import { renderUntangle } from './untangle.js';
 import { renderPutDown } from './putdown.js';
@@ -37,6 +37,13 @@ $('#mode-switch').addEventListener('click', () => {
 });
 
 // ------------------------------------------------------------ nav
+document.getElementById('cover-more').addEventListener('click', (e) => {
+  e.preventDefault();
+  const t = document.getElementById('inside');
+  if (!t) return;
+  t.scrollIntoView({ behavior: root.dataset.motion === 'reduce' || window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+  t.focus({ preventScroll: true });
+});
 document.querySelector('.skip-link').addEventListener('click', (e) => {
   e.preventDefault();
   main.focus();
@@ -96,6 +103,9 @@ function route() {
   const hash = location.hash.replace(/^#\/?/, '');
   let [name, ...rest] = hash.split(/[/-]/);
   if (name === 'home') name = '';
+  const toInside = name === 'inside';
+  if (toInside) name = '';
+  document.documentElement.setAttribute('data-route', name ? 'inner' : 'home');
   if (name === 'settings') name = 'preferences';
   const view = routes[name] || renderNotFound;
   if (typeof cleanup === 'function') cleanup();
@@ -109,8 +119,12 @@ function route() {
     else a.removeAttribute('aria-current');
   });
   updateDemoBanner();
-  const h1 = main.querySelector('h1');
-  if (document.body.dataset.booted) {
+  const h1 = name ? main.querySelector('h1') : document.getElementById('cover-title');
+  if (toInside) {
+    const t = document.getElementById('inside');
+    t.scrollIntoView({ block: 'start' });
+    t.focus({ preventScroll: true });
+  } else if (document.body.dataset.booted) {
     window.scrollTo({ top: 0 });
     (h1 || main).setAttribute('tabindex', '-1');
     (h1 || main).focus({ preventScroll: true });
@@ -128,24 +142,7 @@ subscribe((e) => {
 // ------------------------------------------------------------ home
 function renderHome(el) {
   el.innerHTML = `
-  <section class="hero">
-    <div class="hero-copy">
-      <p class="kicker"><span class="evidence-label">Rewrite Tomorrow</span> Give tomorrow a better beginning.</p>
-      <h1 class="display">Tomorrow starts with what you need <em>tonight.</em></h1>
-      <p class="lede">Untangle your thoughts, make room for rest, and build a study plan you can actually live with.</p>
-      <div class="btn-row">
-        <a class="btn btn-primary btn-large" href="#checkin">What’s keeping me up?</a>
-        <a class="btn btn-secondary btn-large" href="#plan">Plan my week</a>
-      </div>
-      <p class="hero-note">No account. Nothing is saved unless you choose to. You can stop at any point.</p>
-    </div>
-    <figure class="hero-art paper-sheet">
-      <div class="brain-wrap">${brainSVG()}</div>
-      <figcaption>A paper collage based on our handmade case-book brain. It’s a metaphor, not a map of where feelings live.</figcaption>
-    </figure>
-  </section>
-
-  <section class="entry" aria-labelledby="entry-h">
+  <section class="entry" id="inside" aria-labelledby="entry-h" tabindex="-1">
     <h2 id="entry-h" class="section-title">Where would you like to start?</h2>
     <div class="night-only night-note">
       <p>It’s night mode, so the page is shorter. You only need one of these, or none.</p>
@@ -261,7 +258,7 @@ function renderHome(el) {
     </div>
   </section>`;
 
-  const wrap = $('.brain-wrap', el);
+  const wrap = $('#cover .brain-wrap');
   $$('.entry-card', el).forEach((card) => {
     const on = () => lightFragment(wrap, card.dataset.frag);
     const off = () => lightFragment(wrap, null);

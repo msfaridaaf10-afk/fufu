@@ -321,6 +321,25 @@ const shot = async (page, name) => { if (SHOTS) await page.screenshot({ path: `$
   await ctx.close();
 }
 
+// 11. Cover page shows immediately, before any script runs
+{
+  const { ctx, page } = await newPage();
+  await page.route('**/*.js', (r) => r.abort());
+  await page.goto(BASE);
+  check('Cover shows instantly without scripts', await page.getByRole('heading', { name: 'Rewrite Tomorrow' }).isVisible() && await page.getByRole('link', { name: 'What’s keeping me up?' }).isVisible());
+  await page.unroute('**/*.js');
+  await page.goto(`${BASE}#plan`);
+  await page.reload();
+  check('Cover is hidden when the link points to another page', await page.locator('#cover').isHidden());
+  await page.goto(`${BASE}#home`);
+  await page.waitForTimeout(200);
+  check('Cover returns on the home page', await page.locator('#cover').isVisible());
+  await page.getByRole('link', { name: /See what’s inside/ }).click();
+  await page.waitForTimeout(400);
+  check('“See what’s inside” moves to the home content', await page.evaluate(() => document.activeElement.id === 'inside'));
+  await ctx.close();
+}
+
 await browser.close();
 if (errors.length) console.log('\nBrowser errors:\n' + errors.join('\n'));
 check('No JavaScript errors', errors.length === 0);

@@ -12,4 +12,6 @@
     var theme = p.theme || 'system';
     if (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) r.classList.add('is-night');
   } catch (e) { /* storage unavailable: defaults apply */ }
+  var h = (location.hash || '').replace(/^#\/?/, '');
+  document.documentElement.setAttribute('data-route', !h || h === 'home' || h === 'inside' ? 'home' : 'inner');
 })();
