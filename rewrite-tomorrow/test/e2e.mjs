@@ -313,9 +313,9 @@ const shot = async (page, name) => { if (SHOTS) await page.screenshot({ path: `$
   const { ctx, page } = await newPage({ colorScheme: 'dark' });
   await page.goto(BASE);
   check('Night mode follows the system setting', await page.locator('#mode-switch').getAttribute('aria-pressed') === 'true');
-  check('Night mode shows fewer elements on the home page', await page.locator('#explore').isHidden() && await page.getByText('It’s night mode, so we’re showing less.').isVisible());
+  check('Night mode shows fewer elements on the home page', await page.locator('#journey').isHidden() && await page.getByText('It’s night mode, so the page is shorter.').isVisible());
   await page.getByRole('button', { name: 'Show everything' }).click();
-  check('“Show everything” reveals the rest', await page.locator('#explore').isVisible());
+  check('“Show everything” reveals the rest', await page.locator('#journey').isVisible());
   await page.locator('#mode-switch').click();
   check('Manual day/night switch works', await page.locator('#mode-switch').getAttribute('aria-pressed') === 'false' && !(await page.evaluate(() => document.documentElement.classList.contains('is-night'))));
   await ctx.close();

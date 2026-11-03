@@ -148,7 +148,7 @@ function renderHome(el) {
   <section class="entry" aria-labelledby="entry-h">
     <h2 id="entry-h" class="section-title">Where would you like to start?</h2>
     <div class="night-only night-note">
-      <p>It’s night mode, so we’re showing less. You only need one of these — or none.</p>
+      <p>It’s night mode, so the page is shorter. You only need one of these, or none.</p>
       <button type="button" class="btn btn-quiet btn-small" id="show-all">Show everything</button>
     </div>
     <ul class="entry-cards" role="list">
@@ -175,7 +175,79 @@ function renderHome(el) {
     </div>
   </section>
 
-  <section class="journey torn-top night-hide" id="explore" aria-labelledby="journey-h" tabindex="-1">
+  <section class="about-home" aria-labelledby="about-h">
+    <div class="about-grid">
+      <div class="about-copy">
+        <p class="kicker evidence-label">What is this?</p>
+        <h2 id="about-h" class="section-title">A planner that puts sleep first, and a quiet place to stop for the night.</h2>
+        <p>Rewrite Tomorrow is a free website for students aged 13–18. It helps on nights when there’s too much homework, your head won’t switch off, or you can’t put your phone down.</p>
+        <p>It does three things:</p>
+        <ul class="about-points">
+          <li><strong>Finds what’s keeping you up.</strong> A short check-in suggests one small thing to try.</li>
+          <li><strong>Plans schoolwork around your sleep.</strong> Your sleep time is blocked out first. Homework fits into the time that’s left, and anything that doesn’t fit is shown honestly with options.</li>
+          <li><strong>Helps you stop.</strong> It ends with a clear “you can stop here”, not another notification.</li>
+        </ul>
+        <p class="hint">No account. Nothing is saved unless you turn saving on. It isn’t medical advice or therapy. If something serious is going on, <a href="#support">see Getting support</a>.</p>
+      </div>
+      <aside class="about-file paper-card" aria-labelledby="file-h">
+        <span class="tape" aria-hidden="true"></span>
+        <p class="evidence-label">Case 12 · the solution</p>
+        <h3 id="file-h">Built from <em>Stolen: Tomorrow</em></h3>
+        <p>Our Grade 12 project for Gulf Medical University investigated how losing sleep affects learning, attention and mood. We built it as a handmade crime-investigation book.</p>
+        <p>The book asks what short sleep takes from us. This website asks what we can actually do about it.</p>
+        <dl class="file-facts">
+          <div><dt>For</dt><dd>Students aged 13–18</dd></div>
+          <div><dt>Sleep guidance</dt><dd>8–10 hours a night for ages 13–18</dd></div>
+          <div><dt>Costs</dt><dd>Nothing, and no account needed</dd></div>
+        </dl>
+        <a class="btn btn-secondary btn-small" href="#evidence">Open the Evidence Room</a>
+      </aside>
+    </div>
+  </section>
+
+  <section class="catalog" id="explore" aria-labelledby="catalog-h" tabindex="-1">
+    <p class="kicker evidence-label">Everything inside</p>
+    <h2 id="catalog-h" class="section-title">Four kinds of help</h2>
+    <p class="section-sub">Use whichever part you need. Each one works on its own.</p>
+    <div class="catalog-groups">
+      <section class="cat-group cat-tonight" aria-labelledby="cg-tonight">
+        <h3 id="cg-tonight" class="cat-title"><span class="cat-mark" aria-hidden="true"></span>Tonight</h3>
+        <p class="cat-sub">When it’s late and something’s in the way</p>
+        <ul class="tool-list" role="list">
+          <li><a class="tool" href="#checkin"><span class="tool-name">What’s keeping me up?</span><span class="tool-desc">Tick what fits. Get one or two ideas you can change or skip.</span></a></li>
+          <li><a class="tool" href="#untangle"><span class="tool-name">Untangle</span><span class="tool-desc">Talk through what’s on your mind and find one small next step.</span></a></li>
+          <li><a class="tool" href="#putdown"><span class="tool-name">Put it down for tonight</span><span class="tool-desc">Write a worry on a paper card and decide what happens to it. Never saved.</span></a></li>
+          <li><a class="tool" href="#close"><span class="tool-name">Close the day</span><span class="tool-desc">See what you decided, try slow breathing, and stop.</span></a></li>
+        </ul>
+      </section>
+      <section class="cat-group cat-plan" aria-labelledby="cg-plan">
+        <h3 id="cg-plan" class="cat-title"><span class="cat-mark" aria-hidden="true"></span>Planning</h3>
+        <p class="cat-sub">When the work won’t fit</p>
+        <ul class="tool-list" role="list">
+          <li><a class="tool" href="#plan"><span class="tool-name">Plan my week</span><span class="tool-desc">Add school, activities and deadlines. Study goes around your sleep, never into it.</span></a></li>
+          <li><a class="tool" href="#rewrite"><span class="tool-name">Rewrite this evening</span><span class="tool-desc">Compare tonight’s plan with the time you really have, and choose what moves.</span></a></li>
+        </ul>
+      </section>
+      <section class="cat-group cat-morning" aria-labelledby="cg-morning">
+        <h3 id="cg-morning" class="cat-title"><span class="cat-mark" aria-hidden="true"></span>Mornings</h3>
+        <p class="cat-sub">A minute before school</p>
+        <ul class="tool-list" role="list">
+          <li><a class="tool" href="#morning"><span class="tool-name">Morning check-in</span><span class="tool-desc">Four questions you can skip. Over time, a simple record of your own nights.</span></a></li>
+        </ul>
+      </section>
+      <section class="cat-group cat-learn" aria-labelledby="cg-learn">
+        <h3 id="cg-learn" class="cat-title"><span class="cat-mark" aria-hidden="true"></span>Learn &amp; support</h3>
+        <p class="cat-sub">The science, and real people</p>
+        <ul class="tool-list" role="list">
+          <li><a class="tool" href="#evidence"><span class="tool-name">The Evidence Room</span><span class="tool-desc">Five case files on sleep, memory, attention, mood and the teenage body clock.</span></a></li>
+          <li><a class="tool" href="#support"><span class="tool-name">Getting support</span><span class="tool-desc">Who to talk to, and UAE emergency numbers.</span></a></li>
+          <li><a class="tool" href="#preferences"><span class="tool-name">Settings &amp; privacy</span><span class="tool-desc">Day or night look, colours, saving, and deleting everything.</span></a></li>
+        </ul>
+      </section>
+    </div>
+  </section>
+
+  <section class="journey torn-top night-hide" id="journey" aria-labelledby="journey-h" tabindex="-1">
     <div class="journey-inner">
       <h2 id="journey-h" class="section-title">One evening, five small steps</h2>
       <p class="section-sub">Use one, use all of them, or leave whenever you’re ready.</p>
@@ -200,7 +272,7 @@ function renderHome(el) {
   });
   $('#show-all', el).addEventListener('click', () => {
     el.classList.add('show-all');
-    const t = $('#explore', el);
+    const t = $('#journey', el);
     t.focus({ preventScroll: true });
   });
   $('#just-explore', el).addEventListener('click', (e) => {
